@@ -110,18 +110,33 @@ module.exports = function createGame(options) {
   }, 120000)
 
   function turnTimeout() {
-    clearInterval(nextTurnTimeout)
+    const playerIdx = state.state.playerIdx
+    clearTimeout(nextTurnTimeout)
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
       if (state.state.name === stateNames.START_OF_TURN) {
-        command(state.state.playerIdx, 'income')
+        command(playerIdx, {
+          action: 'income',
+          command: 'play-action',
+          stateId: state.stateId
+        })
       } else if (state.state.name === stateNames.ACTION_RESPONSE) {
         for (let i = 0; i < allows.length; i++) {
           if (allows[i]) continue
-          allow(i)
+          command(i, { command: 'allow', stateId: state.stateId })
         }
+      } else if (state.state.name === stateNames.REVEAL_INFLUENCE) {
+        const playerIdxToReveal = state.state.playerToReveal
+        const roleToReveal = state.players[playerIdxToReveal].influence.find(
+          (inf) => !inf.revealed
+        ).role
+        command(playerIdxToReveal, {
+          command: 'reveal',
+          role: roleToReveal,
+          stateId: state.stateId
+        })
       }
-    }, 15000)
+    }, 5000)
   }
 
   function playerJoined(playerIface) {
@@ -635,6 +650,7 @@ module.exports = function createGame(options) {
       playerIdx: firstPlayer,
       winnerIdx: null
     })
+    turnTimeout()
     gameTracker = new GameTracker()
     gameTracker.startOfTurn(state)
   }
@@ -796,6 +812,7 @@ module.exports = function createGame(options) {
           target: command.target,
           message: message
         })
+        turnTimeout()
         resetAllows(playerIdx)
       }
     } else if (command.command == 'challenge') {
@@ -1138,6 +1155,7 @@ module.exports = function createGame(options) {
         return false
       }
     }
+    console.log('everyone allowed!')
     return true
   }
 
@@ -1243,6 +1261,7 @@ module.exports = function createGame(options) {
           reason: 'incorrect-challenge',
           playerToReveal: playerIdx
         })
+        turnTimeout()
       }
     } else {
       // Player does not have role - challenge won.
@@ -1300,6 +1319,7 @@ module.exports = function createGame(options) {
           reason: 'successful-challenge',
           playerToReveal: challengedPlayerIdx
         })
+        turnTimeout()
       }
     }
   }
@@ -1347,6 +1367,7 @@ module.exports = function createGame(options) {
           reason: 'assassinate',
           playerToReveal: actionState.target
         })
+        turnTimeout()
         return false // Not yet end of turn
       }
     } else if (actionState.action == 'coup') {
@@ -1378,6 +1399,7 @@ module.exports = function createGame(options) {
           reason: 'coup',
           playerToReveal: actionState.target
         })
+        turnTimeout()
         return false // Not yet end of turn
       }
     } else if (actionState.action == 'steal') {
