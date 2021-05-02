@@ -6,6 +6,7 @@
             <button class="btn btn-default" data-bind="enable: canAddAi(), event: {vclick: addAi}">Add AI</button>
             <button class="btn btn-default" data-bind="enable: canRemoveAi(), event: {vclick: removeAi}">Remove AI</button>
             <br/>
+            <br/>
             <button class="btn btn-default" data-bind="event: {vclick: start.bind(null, 'original')}, enable: canStartGame">Start normal game</button>
             <button class="btn btn-default" data-bind="event: {vclick: start.bind(null, 'inquisitors')}, enable: canStartGame">Start inquisitor game</button>
             <button class="btn btn-default" data-bind="event: {vclick: start.bind(null, 'reformation')}, enable: canStartGame">Start reformation game</button>
@@ -27,7 +28,7 @@
         <button class="btn btn-default" data-bind="event: {vclick: playAgain}">Play again</button>
     </div>
     <!-- /ko -->
-
+    <div id="timer">00:00</div>
     <!-- During game -->
     <div data-bind="visible: weAreInState('start-of-turn')">
         <!-- ko if: !targetedAction() -->

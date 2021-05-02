@@ -112,6 +112,8 @@ module.exports = function createGame(options) {
   function turnTimeout() {
     const playerIdx = state.state.playerIdx
     clearTimeout(nextTurnTimeout)
+    const timeInMilliSeconds = 5000
+    game.emit('starttimer', timeInMilliSeconds / 1000)
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
       if (state.state.name === stateNames.START_OF_TURN) {
@@ -138,9 +140,18 @@ module.exports = function createGame(options) {
             target: maxIndex
           })
         }
-      } else if (state.state.name === stateNames.ACTION_RESPONSE) {
+      } else if (
+        state.state.name === stateNames.ACTION_RESPONSE ||
+        state.state.name === stateNames.BLOCK_RESPONSE
+      ) {
         for (let i = 0; i < allows.length; i++) {
-          if (allows[i]) continue
+          if (
+            (i == playerIdx &&
+              state.state.name === stateNames.ACTION_RESPONSE) ||
+            allows[i] ||
+            state.players[i].influenceCount == 0
+          )
+            continue
           command(i, { command: 'allow', stateId: state.stateId })
         }
       } else if (state.state.name === stateNames.REVEAL_INFLUENCE) {
@@ -154,7 +165,7 @@ module.exports = function createGame(options) {
           stateId: state.stateId
         })
       }
-    }, 5000)
+    }, timeInMilliSeconds)
   }
 
   function playerJoined(playerIface) {
@@ -944,6 +955,7 @@ module.exports = function createGame(options) {
         addHistory(state.state.action, curTurnHistGroup(), state.state.message)
       }
       gameTracker.block(playerIdx, command.blockingRole)
+      turnTimeout()
       setState({
         name: stateNames.BLOCK_RESPONSE,
         playerIdx: state.state.playerIdx,

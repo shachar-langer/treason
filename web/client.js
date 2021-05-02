@@ -325,6 +325,17 @@ socket.on('incorrectpassword', function () {
   vm.incorrectPassword(true)
 })
 
+socket.on('timer', function (timeInSeconds) {
+  //   let timer = timeInSeconds
+  //   let timerHandler = setInterval(() => {
+  //     document.querySelector('#timer').innerHTML = `${timer}:00`
+  //     timer--
+  //     if (timer === 0) {
+  //       clearInterval(timerHandler)
+  //     }
+  //   }, 1000)
+})
+
 function playAgain() {
   vm.history([])
   command('ready')
