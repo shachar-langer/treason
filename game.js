@@ -115,11 +115,29 @@ module.exports = function createGame(options) {
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
       if (state.state.name === stateNames.START_OF_TURN) {
-        command(playerIdx, {
-          action: 'income',
-          command: 'play-action',
-          stateId: state.stateId
-        })
+        if (state.players[playerIdx].cash < 10) {
+          command(playerIdx, {
+            action: 'income',
+            command: 'play-action',
+            stateId: state.stateId
+          })
+        } else {
+          let maxInfluences = 0
+          let maxIndex = -1
+          for (let i = 0; i < state.players.length; i++) {
+            if (i == playerIdx) continue
+            if (state.players[i].influenceCount > maxInfluences) {
+              maxInfluences = state.players[i].influenceCount
+              maxIndex = i
+            }
+          }
+          command(playerIdx, {
+            action: 'coup',
+            command: 'play-action',
+            stateId: state.stateId,
+            target: maxIndex
+          })
+        }
       } else if (state.state.name === stateNames.ACTION_RESPONSE) {
         for (let i = 0; i < allows.length; i++) {
           if (allows[i]) continue

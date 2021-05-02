@@ -574,6 +574,8 @@ function command(command, options) {
     },
     options
   )
+  console.log('*'.repeat(30))
+  console.log(data)
   socket.emit('command', data)
 }
 function weCanBlock() {
