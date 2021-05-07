@@ -68,14 +68,14 @@ module.exports = function createGame(options) {
     freeForAll: true,
     allowChallengeTeamMates: true,
     state: {
-      name: stateNames.WAITING_FOR_PLAYERS,
-      timer: 15000
+      name: stateNames.WAITING_FOR_PLAYERS
     },
     password: options.password
   }
 
   var rand = randomGen.create(options.randomSeed)
   var nextTurnTimeout = null
+  let timePerRoundInMilliseconds = null
 
   var gameStats
   var gameTracker
@@ -111,10 +111,11 @@ module.exports = function createGame(options) {
   }, 120000)
 
   function turnTimeout() {
+    if (timePerRoundInMilliseconds === null) return
+
     const playerIdx = state.state.playerIdx
     clearTimeout(nextTurnTimeout)
-    const timeInMilliSeconds = 15000
-    game.emit('starttimer', timeInMilliSeconds / 1000)
+    game.emit('starttimer', timePerRoundInMilliseconds / 1000)
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
       if (state.state.name === stateNames.START_OF_TURN) {
@@ -166,7 +167,7 @@ module.exports = function createGame(options) {
           stateId: state.stateId
         })
       }
-    }, timeInMilliSeconds)
+    }, timePerRoundInMilliseconds)
   }
 
   function playerJoined(playerIface) {
@@ -578,7 +579,7 @@ module.exports = function createGame(options) {
     return masked
   }
 
-  function start(gameType) {
+  function start(gameType, timePerRoundInSeconds) {
     if (state.state.name != stateNames.WAITING_FOR_PLAYERS) {
       throw new GameException('Incorrect state')
     }
@@ -598,6 +599,10 @@ module.exports = function createGame(options) {
       state.roles.push('ambassador')
     }
 
+    const asNumber = Number(timePerRoundInSeconds)
+    if (!Number.isNaN(asNumber) && asNumber > 0) {
+      timePerRoundInMilliseconds = asNumber * 1000
+    }
     let nonObservers = []
 
     for (let i = 0; i < state.numPlayers; i++) {
@@ -757,7 +762,7 @@ module.exports = function createGame(options) {
       if (playerState.isReady !== true) {
         throw new GameException('You cannot start the game')
       }
-      start(command.gameType)
+      start(command.gameType, command.timePerRoundInSeconds)
     } else if (command.command == 'ready') {
       if (state.state.name != stateNames.WAITING_FOR_PLAYERS) {
         throw new GameException('Incorrect state')

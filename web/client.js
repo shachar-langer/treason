@@ -429,16 +429,17 @@ function isInvalidPlayerName() {
   }
   return false
 }
-function start(gameType) {
+function start(gameType, timePerRoundInSeconds) {
   if (countNonReadyPlayers() > 0) {
     vm.wantToStart(gameType)
   } else {
-    confirmStart(gameType)
+    confirmStart(gameType, timePerRoundInSeconds)
   }
 }
-function confirmStart(gameType) {
+function confirmStart(gameType, timePerRoundInSeconds) {
   command('start', {
-    gameType: gameType || vm.wantToStart()
+    gameType: gameType || vm.wantToStart(),
+    timePerRoundInSeconds: timePerRoundInSeconds
   })
 }
 function cancelStart() {
