@@ -84,6 +84,8 @@ vm.state = ko.mapping.fromJS({
   treasuryReserve: null,
   freeForAll: null,
   allowChallengeTeamMates: null,
+  timer: 15,
+  timerListener: null, // Holds the event listener of the timer. Used to reset the timer when receiving a new timer event.
   state: {
     name: null,
     playerIdx: null,
@@ -326,14 +328,17 @@ socket.on('incorrectpassword', function () {
 })
 
 socket.on('timer', function (timeInSeconds) {
-  //   let timer = timeInSeconds
-  //   let timerHandler = setInterval(() => {
-  //     document.querySelector('#timer').innerHTML = `${timer}:00`
-  //     timer--
-  //     if (timer === 0) {
-  //       clearInterval(timerHandler)
-  //     }
-  //   }, 1000)
+  clearInterval(vm.state.timerListener())
+  vm.state.timer(timeInSeconds)
+  vm.state.timerListener(
+    setInterval(() => {
+      vm.state.timer(vm.state.timer() - 1)
+
+      if (vm.state.timer() === 0) {
+        clearInterval(vm.state.timerListener())
+      }
+    }, 1000)
+  )
 })
 
 function playAgain() {
@@ -1018,6 +1023,10 @@ function sendGlobalMessage() {
     socket.emit('sendglobalchatmessage', vm.globalMessage())
     vm.globalMessage('')
   }
+}
+
+function formatTimer() {
+  return String(vm.state.timer()).padStart(2, 0)
 }
 
 var windowVisible = true

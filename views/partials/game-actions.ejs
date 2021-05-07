@@ -28,7 +28,7 @@
         <button class="btn btn-default" data-bind="event: {vclick: playAgain}">Play again</button>
     </div>
     <!-- /ko -->
-    <div id="timer">00:00</div>
+    <div>00:<span data-bind="text: formatTimer()"></span></div>
     <!-- During game -->
     <div data-bind="visible: weAreInState('start-of-turn')">
         <!-- ko if: !targetedAction() -->

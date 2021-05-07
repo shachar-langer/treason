@@ -68,7 +68,8 @@ module.exports = function createGame(options) {
     freeForAll: true,
     allowChallengeTeamMates: true,
     state: {
-      name: stateNames.WAITING_FOR_PLAYERS
+      name: stateNames.WAITING_FOR_PLAYERS,
+      timer: 15000
     },
     password: options.password
   }
@@ -112,7 +113,7 @@ module.exports = function createGame(options) {
   function turnTimeout() {
     const playerIdx = state.state.playerIdx
     clearTimeout(nextTurnTimeout)
-    const timeInMilliSeconds = 5000
+    const timeInMilliSeconds = 15000
     game.emit('starttimer', timeInMilliSeconds / 1000)
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
