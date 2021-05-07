@@ -327,18 +327,20 @@ socket.on('incorrectpassword', function () {
   vm.incorrectPassword(true)
 })
 
-socket.on('timer', function (timeInSeconds) {
-  clearInterval(vm.state.timerListener())
-  vm.state.timer(timeInSeconds)
-  vm.state.timerListener(
-    setInterval(() => {
-      vm.state.timer(vm.state.timer() - 1)
+socket.on('timer', function ({ timeInSeconds, gameId }) {
+  if (vm.state.gameId() === gameId) {
+    clearInterval(vm.state.timerListener())
+    vm.state.timer(timeInSeconds)
+    vm.state.timerListener(
+      setInterval(() => {
+        vm.state.timer(vm.state.timer() - 1)
 
-      if (vm.state.timer() === 0) {
-        clearInterval(vm.state.timerListener())
-      }
-    }, 1000)
-  )
+        if (vm.state.timer() === 0) {
+          clearInterval(vm.state.timerListener())
+        }
+      }, 1000)
+    )
+  }
 })
 
 function playAgain() {

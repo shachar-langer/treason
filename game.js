@@ -115,7 +115,10 @@ module.exports = function createGame(options) {
 
     const playerIdx = state.state.playerIdx
     clearTimeout(nextTurnTimeout)
-    game.emit('starttimer', timePerRoundInMilliseconds / 1000)
+    game.emit('starttimer', {
+      timeInSeconds: timePerRoundInMilliseconds / 1000,
+      gameId: state.gameId
+    })
     nextTurnTimeout = setTimeout(function () {
       debug('No action have been done, turn to the next player')
       if (state.state.name === stateNames.START_OF_TURN) {

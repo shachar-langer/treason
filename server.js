@@ -267,8 +267,8 @@ function createNewGame(socket, password) {
     broadcastGames()
   })
 
-  game.on('starttimer', function (timeInSeconds) {
-    broadcastTimer(timeInSeconds)
+  game.on('starttimer', function ({ timeInSeconds, gameId }) {
+    broadcastTimer({ timeInSeconds, gameId })
   })
 
   socket.emit('created', {
@@ -299,8 +299,8 @@ function broadcastPlayers() {
   })
 }
 
-function broadcastTimer(timeInSeconds) {
-  io.sockets.emit('timer', timeInSeconds)
+function broadcastTimer(timerInfo) {
+  io.sockets.emit('timer', timerInfo)
 }
 
 function filterPlayers() {
